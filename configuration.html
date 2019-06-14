@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1, minimum-scale=1">
+    <title>配置工具-ArtOnWeb</title>
+    <!-- 定义样式 -->
+    <style type="text/css">
+        /*全局属性*/
+        body, html {
+            height:100%;
+            font-size: 100%;
+            padding: 0 0.5rem;
+        }
+        input {
+            width: 20rem;
+            height: 2rem;
+            background-color: #FFFFFF;
+            border: 1px solid #E5E5E5;
+        }
+        .drop-zone {
+            width: 26rem;
+            height: 14rem;
+            border: 4px dashed #2D3DE0;
+            overflow:auto;
+        }
+        .file-list li img {
+            width:6rem;
+        }
+        .warning {
+            color: #E9002C;
+        }
+        .button {
+            width: 20rem;
+            height: auto;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style> 
+</head>
+<body>
+<form>
+    <h2>1.配置个人信息区 • Personal Information:</h2>
+    <h4 class="warning"><p>注: 请确保属性格式正确,不需要的属性可省略</p><p>Note: Please ensure that the properties are formatted correctly and the unneeded properties can be omitted</p></h4>
+    <p>你的名字 • Name：<input id="profile-name" name="name" type="text" placeholder="设计小超人"></p>
+    <p>你的电话 • Phone：<input id="profile-phone" name="phone" type="text" placeholder="666-8888-8888"></p>
+    <p>标签(多标签用;隔开) • Tags(separated by ;)：<input id="profile-tag" name="tag" type="text" placeholder="#就是帅;#就是美;#切图嗖嗖快"></p>
+    <p>信息区背景色 • Bg color of the information：<input id="profile-bg" name="bg" type="color" value="#1E2025"></p>
+    <h2>2.将作品拖到下方虚线框中 • Drag the work to the dotted box below:</h2>
+    <h4 class="warning"><p>注: 作品必须拷贝到"myworks"文件下, 支持png,jpge,gif</p><p>Note: The work must be copied to the "myworks" file, support png, jpge, gif</p></h4>
+    <div class="drop-zone">
+        <ol class="file-list"></ol>
+    </div>
+    <h2>3.保存配置文件 • Save configuration file:</h2>
+    <h4 class="warning"><p>注: "data.js"也要拷贝到"myworks"文件下</p><p>Note: "data.js" should also be copied to the "myworks" file</p></h4>
+    <button id="profile-button" class="button" type="button"><p>生成"data.js"配置文件</p><p>Generate a "data.js" configuration file</p></button>
+</form> 
+<!-- 引用库 -->
+<script type="text/javascript" charset="UTF-8" src="js/lib/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/lib/FileSaver.min.js"></script>
+<!-- 核心逻辑 -->
+<script type="text/javascript" charset="UTF-8">
+    $(function() {
+        //需要保存的文本内容
+        var dataGallery="";
+        //定义图片拖拽区功能
+        $(".drop-zone").on("drop", function (event) {
+            console.log("drop");
+            event.preventDefault();
+            event.stopPropagation();
+            $(this).css("border", "");
+            var dataTransfer = event.originalEvent.dataTransfer;
+            console.log(dataTransfer);
+            if(dataTransfer && dataTransfer.files.length) {
+                $.each(dataTransfer.files, function(i, file) {
+                    if (file.type.match('image.*')) {
+                        var imgSrc = "myworks/" + file.name;
+                        $(".file-list").append($("<li>").append($("<img/>").attr("src", imgSrc)).append(file.name));
+                        var image = new Image();
+                        image.onload=function(){
+                            console.log("第" + i + "image.width" + image.width);
+                            console.log("第" + i + "image.height" + image.height);
+                            dataGallery += `{src:"myworks/${file.name}",w:${image.width},h:${image.height}},`;
+                            image = null;
+                        };
+                        image.src = imgSrc;
+                    }
+                });
+            }
+        });
+        $(".drop-zone").on("dragover", function (event) {
+            console.log("dragover");
+            event.preventDefault();
+            event.stopPropagation();
+            $(this).css("border", "4px dashed #E9002C")
+        });
+        $(".drop-zone").on("dragleave", function (event) {
+            console.log("dragleave");
+            event.preventDefault();
+            event.stopPropagation();
+            $(this).css("border", "");
+        });
+        //绑定按钮点击
+        $("#profile-button").on("click", function(){
+            var name = $("#profile-name").val();
+            var phone = $("#profile-phone").val();
+            var tagArray = $("#profile-tag").val().split(";"), tag;
+            if (tagArray.length > 0) {
+                tag = '"' + tagArray[0] + '"';
+                for (var i = 1; i < tagArray.length; i++) {
+                    tag += ',"' + tagArray[i] + '"';
+                };
+            };
+            var bg = $('#profile-bg').val();
+            var jsData = `var myData={designer:{name:'${name}',phone:'${phone}',tag:[${tag}],bg:'${bg}'},gallery:[${dataGallery}]}`;
+            console.log(jsData);
+            var jsFile = new File([jsData], "data.js", {type: "text/plain;charset=utf-8"});
+            saveAs(jsFile);
+        });
+    });
+</script>
+</body>
+</html>
