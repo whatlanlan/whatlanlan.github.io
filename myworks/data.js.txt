@@ -1,1 +1,1 @@
-var myData={designer:{name:'whatlan',phone:'13641452989',tag:["#热爱生活#待业"],bg:'#1e2025'},gallery:[{src:"myworks/微信截图_20190613115351.png",w:1920,h:1080},{src:"myworks/微信截图_20190613121834.png",w:1920,h:1080},{src:"myworks/微信截图_20190613121912.png",w:1920,h:1080},]}
+var myData={designer:{name:'whatlan',phone:'13641452989',tag:["#作品集"],bg:'#1e2025'},gallery:[{src:"myworks/微信截图_20190613115351.png",w:1920,h:1080},{src:"myworks/微信截图_20190613121834.png",w:1920,h:1080},{src:"myworks/微信截图_20190613121912.png",w:1920,h:1080},]}
